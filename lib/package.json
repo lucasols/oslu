@@ -1,0 +1,54 @@
+{
+  "name": "oslu",
+  "description": "A serie of On Screen Log Utils",
+  "version": "0.1.0",
+  "license": "MIT",
+  "scripts": {
+    "test": "vitest --ui",
+    "lint": "pnpm tsc && pnpm eslint && pnpm format",
+    "eslint": "eslint --ext .jsx,.js,.ts,.tsx src/",
+    "format": "prettier --write src/**/*.ts",
+    "tsc": "tsc -p tsconfig.prod.json",
+    "test:run": "vitest run",
+    "build": "pnpm test:run && pnpm lint && pnpm build:no-test",
+    "build:no-test": "tsup --minify --dts",
+    "npm-publish": "./scripts/check-if-is-sync.sh && pnpm build && npm publish"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": "github:lucasols/s-logger",
+  "author": "Lucas Santos",
+  "type": "module",
+  "main": "./dist/main.cjs",
+  "module": "./dist/main.js",
+  "types": "./dist/main.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/main.js",
+      "require": "./dist/main.cjs"
+    }
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.18",
+    "@typescript-eslint/eslint-plugin": "^5.47.1",
+    "@typescript-eslint/parser": "^5.47.1",
+    "@vitest/ui": "^0.26.2",
+    "eslint": "^8.30.0",
+    "eslint-plugin-jest": "^27.1.7",
+    "tsm": "^2.3.0",
+    "tsup": "^6.5.0",
+    "prettier": "^2.8.1",
+    "typescript": "^4.9.4",
+    "vite": "^4.0.3",
+    "vitest": "^0.26.2"
+  },
+  "dependencies": {
+    "goober": "^2.0.27",
+    "tiny-glob": "^0.2.9"
+  }
+}
