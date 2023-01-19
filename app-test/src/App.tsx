@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { watchValue } from '../../lib/src/main'
 import { logErrorOnScreen, logInfoOnScreen } from '../../lib/src/main'
+import { watchCount } from '../../lib/src/persistentLogger'
 import './App.css'
 
 const lorenIpsum =
@@ -83,6 +84,14 @@ function App() {
         <button
           onClick={() => {
             setCount(count + 1)
+          }}
+        >
+          Increment count
+        </button>
+
+        <button
+          onClick={() => {
+            watchCount('ok')
           }}
         >
           Increment count

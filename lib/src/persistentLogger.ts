@@ -374,3 +374,32 @@ function getVarContentElement(id: string): {
     container: newElement,
   }
 }
+
+export function watchCount(
+  id: string,
+  {
+    alignLeft: _alignLeft,
+  }: {
+    alignLeft?: boolean
+  } = {},
+) {
+  createContainer()
+
+  let alignLeft = _alignLeft
+
+  const varElement = getVarContentElement(id)
+
+  const currentCount = Number(varElement.content.innerText)
+
+  varElement.content.innerText = String(currentCount + 1)
+
+  if (alignLeft) {
+    varElement.container.classList.add('alignLeft')
+  } else {
+    varElement.container.classList.remove('alignLeft')
+  }
+
+  return () => {
+    removeVar(id)
+  }
+}
