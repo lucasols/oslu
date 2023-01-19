@@ -127,7 +127,7 @@ function addErrorsListeners() {
 
   console.error = (...args: any[]) => {
     logOnScreen('error', args, {
-      timeout: 5_000,
+      timeout: 15_000,
       disableErrorConsoleLog: true,
     })
 
