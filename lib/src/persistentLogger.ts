@@ -385,7 +385,7 @@ export function watchCount(
 ) {
   createContainer()
 
-  let alignLeft = _alignLeft
+  const alignLeft = _alignLeft
 
   const varElement = getVarContentElement(id)
 
