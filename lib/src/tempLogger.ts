@@ -32,29 +32,15 @@ export function initializeTempLogs({
 
     .log {
       pointer-events: auto;
-      background: #111827;
-      display: grid;
+      ${transition()};
       height: var(--icon-size);
       width: var(--icon-size);
-      overflow: hidden;
-      border-radius: 25px;
-      ${transition()};
-      ${inline({ align: 'bottom' })};
-      color: #fff;
+      position: relative;
 
       &.hidden {
         opacity: 0;
         height: 0;
         width: 0;
-      }
-
-      &:hover {
-        border-radius: 20px;
-        border-bottom-right-radius: 10px;
-        border-top-right-radius: 10px;
-
-        height: max(var(--content-height), var(--icon-size));
-        width: calc(var(--content-width) + var(--icon-size));
       }
 
       &.error {
@@ -67,6 +53,31 @@ export function initializeTempLogs({
             background-color: rgba(229, 53, 88, 0.16);
           }
         }
+      }
+    }
+
+    .log-content-container {
+      pointer-events: auto;
+      background: #111827;
+      display: grid;
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: var(--icon-size);
+      width: var(--icon-size);
+      overflow: hidden;
+      border-radius: 25px;
+      ${inline({ align: 'bottom' })};
+      ${transition()};
+      color: #fff;
+
+      &:hover {
+        border-radius: 20px;
+        border-bottom-right-radius: 10px;
+        border-top-right-radius: 10px;
+
+        height: max(var(--content-height), var(--icon-size));
+        width: calc(var(--content-width) + var(--icon-size));
       }
 
       .icon {
@@ -86,6 +97,7 @@ export function initializeTempLogs({
         max-width: 1200px;
         min-height: var(--icon-size);
         ${stack({ align: 'left', gap: 6 })};
+        user-select: text;
 
         .item {
           border-radius: 4px;
@@ -145,11 +157,11 @@ interface LogOnScreenOptions {
   iconChar?: string
 }
 
-const errorsLoggedInLast10Seconds = new Map<
-  string,
-  {
-    timeout: number
-  }
+const errorsLoggedInLast10Seconds = new Map<string, { timeout: number }>()
+
+const errorsAutohideTimeouts = new Map<
+  HTMLDivElement,
+  { startTimer: () => void; getTimeoutId: () => number }
 >()
 
 function logOnScreen(
@@ -199,19 +211,24 @@ function logOnScreen(
   }
 
   const icon = iconChar
-    ? `<div class="icon-letter">${iconChar.slice(0, 4)}</div>`
+    ? `<div class="icon-letter">${iconChar.slice(0, 4).toLowerCase()}</div>`
     : type === 'error'
     ? errorIcon
     : 'ℹ︎'
 
-  const notification = createElement({
-    class: `log ${type} hidden`,
+  const logContentContainer = createElement({
+    class: `log-content-container`,
     innerHTML: `<div class="icon">${icon}</div>`,
     title: `Click to close, or shift+click to close all`,
     dataset: {
       messageId:
         type === 'error' && !disableDebounceOfDuplicatedErrors && messageString,
     },
+  })
+
+  const notification = createElement({
+    class: `log ${type} hidden`,
+    children: [logContentContainer],
   })
 
   const messageItems = Array.isArray(message) ? message : [message]
@@ -232,7 +249,7 @@ function logOnScreen(
       .join(''),
   })
 
-  notification.appendChild(content)
+  logContentContainer.appendChild(content)
 
   container.appendChild(notification)
 
@@ -254,12 +271,17 @@ function logOnScreen(
       }, timeout)
     }
 
+    errorsAutohideTimeouts.set(notification, {
+      startTimer,
+      getTimeoutId: () => timeoutId,
+    })
+
     addElementEvent(notification, 'mouseenter', () => {
-      window.clearTimeout(timeoutId)
+      stopAllErrorsAutoHide()
     })
 
     addElementEvent(notification, 'mouseleave', () => {
-      startTimer()
+      resumeAllErrorsAutoHide()
     })
 
     startTimer()
@@ -277,6 +299,18 @@ function logOnScreen(
   removeExtraNotifications()
 }
 
+function stopAllErrorsAutoHide() {
+  errorsAutohideTimeouts.forEach((timeout) => {
+    clearTimeout(timeout.getTimeoutId())
+  })
+}
+
+function resumeAllErrorsAutoHide() {
+  errorsAutohideTimeouts.forEach((timeout) => {
+    timeout.startTimer()
+  })
+}
+
 export function logErrorOnScreen(message: any, options?: LogOnScreenOptions) {
   logOnScreen('error', message, options)
 }
@@ -291,6 +325,7 @@ export function logInfoOnScreen(
 
 function hideNotification(notification: HTMLDivElement) {
   notification.classList.add('hidden')
+  errorsAutohideTimeouts.delete(notification)
 
   addElementEvent(notification, 'transitionend', () => {
     removeAllElementEvents(notification)

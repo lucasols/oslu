@@ -81,6 +81,15 @@ function App() {
         >
           log long error
         </button>
+
+        <button
+          onClick={() => {
+            logErrorOnScreen(lorenIpsum + Math.random())
+          }}
+        >
+          random log long error
+        </button>
+
         <button
           onClick={() => {
             setCount(count + 1)
