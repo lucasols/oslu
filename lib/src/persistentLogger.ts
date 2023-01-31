@@ -6,6 +6,11 @@ import { stack } from './utils/stack'
 import { transition } from './utils/transition'
 
 let container: HTMLDivElement | null = null
+let enabled = false
+
+export function initializePersistentLogs() {
+  enabled = true
+}
 
 function addKeyboardsShortcuts(e: KeyboardEvent) {
   if (e.key === 'g') {
@@ -244,6 +249,8 @@ export function watchValue(
     lastNDiffValues,
   }: Options = {},
 ) {
+  if (!enabled) return
+
   createContainer()
 
   let newValue = value
@@ -383,6 +390,8 @@ export function watchCount(
     alignLeft?: boolean
   } = {},
 ) {
+  if (!enabled) return
+
   createContainer()
 
   const alignLeft = _alignLeft

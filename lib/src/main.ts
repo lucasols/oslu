@@ -3,4 +3,4 @@ export {
   logInfoOnScreen,
   initializeTempLogs,
 } from './tempLogger'
-export { watchValue } from './persistentLogger'
+export { watchValue, initializePersistentLogs } from './persistentLogger'

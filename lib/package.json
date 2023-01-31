@@ -1,7 +1,7 @@
 {
   "name": "oslu",
   "description": "A serie of On Screen Log Utils",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "license": "MIT",
   "scripts": {
     "test": "vitest --ui",
@@ -11,7 +11,7 @@
     "tsc": "tsc -p tsconfig.prod.json",
     "test:run": "vitest run",
     "build": "pnpm test:run && pnpm lint && pnpm build:no-test",
-    "build:no-test": "tsup --minify --dts",
+    "build:no-test": "tsup --dts",
     "npm-publish": "./scripts/check-if-is-sync.sh && pnpm build && npm publish"
   },
   "files": [

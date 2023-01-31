@@ -126,21 +126,21 @@ function addErrorsListeners() {
   window.onerror = (message) => {
     logOnScreen('error', message, {
       timeout: false,
-      disableErrorConsoleLog: true,
+      disableConsoleLog: true,
     })
   }
 
   window.onunhandledrejection = (event) => {
     logOnScreen('error', String(event.reason), {
       timeout: false,
-      disableErrorConsoleLog: true,
+      disableConsoleLog: true,
     })
   }
 
   console.error = (...args: any[]) => {
     logOnScreen('error', args, {
       timeout: 15_000,
-      disableErrorConsoleLog: true,
+      disableConsoleLog: true,
     })
 
     defaultErrorLogger(...args)
@@ -152,7 +152,7 @@ const errorIcon = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://w
 interface LogOnScreenOptions {
   /** timeout of the log in ms */
   timeout?: number | false
-  disableErrorConsoleLog?: boolean
+  disableConsoleLog?: boolean
   disableDebounceOfDuplicatedErrors?: boolean
   iconChar?: string
 }
@@ -170,7 +170,7 @@ function logOnScreen(
   {
     timeout = 10_000,
     iconChar,
-    disableErrorConsoleLog,
+    disableConsoleLog,
     disableDebounceOfDuplicatedErrors,
   }: LogOnScreenOptions = {},
 ) {
@@ -189,9 +189,11 @@ function logOnScreen(
     return
   }
 
-  if (type === 'error' && !disableErrorConsoleLog) {
+  if (type === 'error' && !disableConsoleLog) {
     defaultErrorLogger(message)
     console.trace()
+  } else if (!disableConsoleLog) {
+    console.log('[oslu]', message)
   }
 
   if (type === 'error' && !disableDebounceOfDuplicatedErrors) {
