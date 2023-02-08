@@ -164,7 +164,7 @@ interface LogOnScreenOptions {
 
 const errorsLoggedInLast10Seconds = new Map<string, { timeout: number }>()
 
-const errorsAutohideTimeouts = new Map<
+const logsAutohideTimeouts = new Map<
   HTMLDivElement,
   { startTimer: () => void; getTimeoutId: () => number }
 >()
@@ -278,7 +278,7 @@ function logOnScreen(
       }, timeout)
     }
 
-    errorsAutohideTimeouts.set(notification, {
+    logsAutohideTimeouts.set(notification, {
       startTimer,
       getTimeoutId: () => timeoutId,
     })
@@ -307,13 +307,13 @@ function logOnScreen(
 }
 
 function stopAllLogsAutoHide() {
-  errorsAutohideTimeouts.forEach((timeout) => {
+  logsAutohideTimeouts.forEach((timeout) => {
     clearTimeout(timeout.getTimeoutId())
   })
 }
 
 function resumeAllLogsAutoHide() {
-  errorsAutohideTimeouts.forEach((timeout) => {
+  logsAutohideTimeouts.forEach((timeout) => {
     timeout.startTimer()
   })
 }
@@ -332,7 +332,7 @@ export function logInfoOnScreen(
 
 function hideNotification(notification: HTMLDivElement) {
   notification.classList.add('hidden')
-  errorsAutohideTimeouts.delete(notification)
+  logsAutohideTimeouts.delete(notification)
 
   addElementEvent(notification, 'transitionend', () => {
     removeAllElementEvents(notification)
