@@ -94,6 +94,25 @@ function App() {
 
         <button
           onClick={() => {
+            logErrorOnScreen({
+              a: 1,
+              b: 2,
+            })
+          }}
+        >
+          obj
+        </button>
+
+        <button
+          onClick={() => {
+            logErrorOnScreen([['a', 'b', 1, 2]])
+          }}
+        >
+          array
+        </button>
+
+        <button
+          onClick={() => {
             setCount(count + 1)
           }}
         >
@@ -105,7 +124,72 @@ function App() {
             watchCount('ok')
           }}
         >
-          Increment count
+          watch count
+        </button>
+
+        <button
+          onClick={() => {
+            logErrorOnScreen({
+              path: 'v3/conversations/3:mark-as-read',
+              payload: {
+                meta_id: 'gvqpibaQTRgXrMllEWvY3',
+              },
+              response: {
+                status: true,
+                data: {
+                  id_jestor_chat_users: 3,
+                  id_chat: 2,
+                  id_user: 1,
+                  muted: false,
+                  joined: true,
+                  starred: true,
+                  created_at: '2022-11-11T15:18:15+00:00',
+                  last_message_at: '2023-02-08T02:46:06+00:00',
+                  last_message_seen: 0,
+                  order: null,
+                  config: null,
+                  chat: {
+                    id_jestor_chats: 2,
+                    chat_slug: 'tab_3#31',
+                    chat_type: 'record',
+                    _record: {
+                      name: 'sdfasdasd fdsfsdxcv',
+                      jestor_object_label: '75.91',
+                      jestor_object_label_field:
+                        '{"label":"Currency lookup table 2","type":"vlookup","key":"tesfd","item":"field","required":false,"field":"tesfd","auto_fill":"{{sdfsdf.num}}","config":{"connectedField":"sdfsdf","isAliasByField":true,"object":"sdfsdf","field":"num","type":"number","textFormat":null},"format":null}',
+                      sdfsdf: {
+                        id_sdfsdf: 116,
+                        jestor_object_label: 'sdf',
+                        jestor_object_label_field:
+                          '{"label":"short text","type":"string","key":"short_text","item":"field","required":false,"field":"short_text","auto_fill":false}',
+                      },
+                    },
+                    record: {
+                      name: 'sdfasdasd fdsfsdxcv',
+                      jestor_object_label: '75.91',
+                      jestor_object_label_field:
+                        '{"label":"Currency lookup table 2","type":"vlookup","key":"tesfd","item":"field","required":false,"field":"tesfd","auto_fill":"{{sdfsdf.num}}","config":{"connectedField":"sdfsdf","isAliasByField":true,"object":"sdfsdf","field":"num","type":"number","textFormat":null},"format":null}',
+                      sdfsdf: {
+                        id_sdfsdf: 116,
+                        jestor_object_label: 'sdf',
+                        jestor_object_label_field:
+                          '{"label":"short text","type":"string","key":"short_text","item":"field","required":false,"field":"short_text","auto_fill":false}',
+                      },
+                    },
+                  },
+                  unread_count: 0,
+                  mention_count: 0,
+                },
+                metadata: {
+                  response: 'ok',
+                  message: 'OK',
+                  notifications: [],
+                },
+              },
+            })
+          }}
+        >
+          very large obj
         </button>
       </div>
     </div>

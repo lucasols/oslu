@@ -104,6 +104,10 @@ function createContainer() {
           white-space: pre-wrap;
           font-weight: 500;
 
+          &.long {
+            font-size: 13px;
+          }
+
           .sub-value {
             position: relative;
             padding-left: 4px;
@@ -304,6 +308,11 @@ export function watchValue(
     varElement.content.prepend(valueElement)
   } else {
     varElement.content.innerText = newValue
+    const stringValue = String(newValue)
+
+    if (stringValue.length > 100 || stringValue.split('\n').length > 1) {
+      varElement.content.classList.add('long')
+    }
   }
 
   if (alignLeft) {

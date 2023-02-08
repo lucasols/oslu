@@ -5,6 +5,7 @@ import { stack } from './utils/stack'
 import { globalStyle } from './globalStyle'
 import { transition } from './utils/transition'
 import { createElement } from './utils/createElement'
+import { jsonFormatter } from './utils/jsonFormatter'
 
 let container: HTMLDivElement | null = null
 
@@ -104,9 +105,11 @@ export function initializeTempLogs({
           padding: 3px 6px;
           max-width: 100%;
           flex-grow: 1;
+          white-space: pre-wrap;
           font-family: 'Fira Code', monospace;
           font-size: 12px;
           background: rgba(255, 255, 255, 0.1);
+          font-weight: 500;
         }
       }
     }
@@ -244,7 +247,7 @@ function logOnScreen(
         if (typeof item === 'string' || typeof item === 'number') {
           itemContent = String(item)
         }
-        itemContent = JSON.stringify(item)
+        itemContent = jsonFormatter(item)
 
         return `<div class="item">${itemContent}</div>`
       })
