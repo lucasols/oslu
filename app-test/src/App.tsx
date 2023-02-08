@@ -199,6 +199,14 @@ function App() {
         >
           very large obj
         </button>
+
+        <button
+          onClick={() => {
+            logErrorOnScreen(lorenIpsum.repeat(100))
+          }}
+        >
+          Very very long error
+        </button>
       </div>
     </div>
   )

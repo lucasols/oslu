@@ -459,3 +459,16 @@ test('real large obj', () => {
     }"
   `)
 })
+
+test('truncate very long strings', () => {
+  expect(
+    jsonFormatter(
+      {
+        a: 'a'.repeat(210),
+      },
+      { maxNestedStringSize: 100 },
+    ),
+  ).toMatchInlineSnapshot(`
+    "{ a: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...' }"
+  `)
+})

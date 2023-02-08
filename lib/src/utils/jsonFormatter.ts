@@ -5,6 +5,7 @@ export function jsonFormatter(
     maxArrayItems?: number
     maxObjKeys?: number
     maxNestedDepth?: number
+    maxNestedStringSize?: number
   } = {},
   inheritedIndentation = '',
   depth = 0,
@@ -14,6 +15,7 @@ export function jsonFormatter(
     maxArrayItems = 16,
     maxObjKeys = 10,
     maxNestedDepth = 4,
+    maxNestedStringSize = 100,
   } = options
 
   if (
@@ -26,6 +28,10 @@ export function jsonFormatter(
   }
 
   if (typeof value === 'string') {
+    if (depth > 0 && value.length > maxNestedStringSize) {
+      return `'${value.slice(0, maxNestedStringSize)}...'`
+    }
+
     return `'${value}'`
   }
 

@@ -99,6 +99,8 @@ export function initializeTempLogs({
         min-height: var(--icon-size);
         ${stack({ align: 'left', gap: 6 })};
         user-select: text;
+        overflow-y: auto;
+        max-height: 400px;
 
         .item {
           border-radius: 4px;
@@ -282,11 +284,11 @@ function logOnScreen(
     })
 
     addElementEvent(notification, 'mouseenter', () => {
-      stopAllErrorsAutoHide()
+      stopAllLogsAutoHide()
     })
 
     addElementEvent(notification, 'mouseleave', () => {
-      resumeAllErrorsAutoHide()
+      resumeAllLogsAutoHide()
     })
 
     startTimer()
@@ -304,13 +306,13 @@ function logOnScreen(
   removeExtraNotifications()
 }
 
-function stopAllErrorsAutoHide() {
+function stopAllLogsAutoHide() {
   errorsAutohideTimeouts.forEach((timeout) => {
     clearTimeout(timeout.getTimeoutId())
   })
 }
 
-function resumeAllErrorsAutoHide() {
+function resumeAllLogsAutoHide() {
   errorsAutohideTimeouts.forEach((timeout) => {
     timeout.startTimer()
   })
