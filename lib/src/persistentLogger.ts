@@ -241,18 +241,24 @@ type Options = {
   lastNDiffValues?: number
 }
 
+export function watchValue(value: any): unknown
+export function watchValue(id: string, value: any, options?: Options): unknown
 export function watchValue(
-  id: string,
-  value: any,
-  {
+  ...args: [value: any] | [id: string, value: any, options?: Options]
+): unknown {
+  const id = args.length === 1 ? '.' : args[0]
+  const value = args.length === 1 ? args[0] : args[1]
+  const options: Options = (args.length === 1 ? {} : args[2]) || {}
+
+  const {
     disableAutoFormat,
     minFractionDigits,
     alignLeft: _alignLeft,
     maxFractionDigits = minFractionDigits ? undefined : 4,
     lastNValues,
     lastNDiffValues,
-  }: Options = {},
-) {
+  } = options
+
   if (!enabled) return
 
   createContainer()
@@ -321,9 +327,7 @@ export function watchValue(
     varElement.container.classList.remove('alignLeft')
   }
 
-  return () => {
-    removeVar(id)
-  }
+  return value
 }
 
 export function removeVar(id: string) {

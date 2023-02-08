@@ -129,6 +129,14 @@ function App() {
 
         <button
           onClick={() => {
+            watchValue('ok')
+          }}
+        >
+          watch value default
+        </button>
+
+        <button
+          onClick={() => {
             logErrorOnScreen({
               path: 'v3/conversations/3:mark-as-read',
               payload: {
