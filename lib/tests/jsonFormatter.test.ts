@@ -472,3 +472,20 @@ test('truncate very long strings', () => {
     "{ a: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...' }"
   `)
 })
+
+test('format Set', () => {
+  expect(jsonFormatter(new Set([1, 2, 3]))).toMatchInlineSnapshot(
+    '"Set[ 1, 2, 3 ]"',
+  )
+})
+
+test('format Map', () => {
+  expect(
+    jsonFormatter(
+      new Map([
+        ['a', 1],
+        ['b', 2],
+      ]),
+    ),
+  ).toMatchInlineSnapshot('"Map{ a: 1, b: 2 }"')
+})

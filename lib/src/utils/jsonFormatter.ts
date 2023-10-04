@@ -101,6 +101,16 @@ export function jsonFormatter(
       return `Error('${value.toString().replace(/^Error: /, '')}')`
     }
 
+    if (value instanceof Set) {
+      return `Set${jsonFormatter([...value], options)}`
+    }
+
+    if (value instanceof Map) {
+      return `Map${jsonFormatter(Object.fromEntries(
+        value.entries()
+      ), options)}`
+    }
+
     if (depth >= maxNestedDepth) {
       return '{...}'
     }

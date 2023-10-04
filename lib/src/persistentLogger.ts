@@ -241,8 +241,8 @@ type Options = {
   lastNDiffValues?: number
 }
 
-export function watchValue(value: any): unknown
-export function watchValue(id: string, value: any, options?: Options): unknown
+export function watchValue<T>(value: T): T
+export function watchValue<T>(id: string, value: T, options?: Options): T
 export function watchValue(
   ...args: [value: any] | [id: string, value: any, options?: Options]
 ): unknown {
@@ -396,7 +396,7 @@ function getVarContentElement(id: string): {
 }
 
 export function watchCount(
-  id: string,
+  id = 'count',
   {
     alignLeft: _alignLeft,
   }: {
