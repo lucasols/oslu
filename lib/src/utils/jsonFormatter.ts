@@ -106,9 +106,7 @@ export function jsonFormatter(
     }
 
     if (value instanceof Map) {
-      return `Map${jsonFormatter(Object.fromEntries(
-        value.entries()
-      ), options)}`
+      return `Map${jsonFormatter(Object.fromEntries(value.entries()), options)}`
     }
 
     if (depth >= maxNestedDepth) {
