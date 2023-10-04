@@ -16,6 +16,11 @@ function addKeyboardsShortcuts(e: KeyboardEvent) {
   if (e.key === 'g') {
     container?.classList.toggle('ghost')
   }
+
+  if (!enabled && e.key === 'e') {
+    enabled = true
+    alert('Persistent logs enabled')
+  }
 }
 
 function createContainer() {
@@ -154,7 +159,7 @@ function createContainer() {
     'bottom-left',
     'top-left',
   ] as const
-  type Positions = typeof positions[number]
+  type Positions = (typeof positions)[number]
 
   const containerComp = createElementWithState<Positions>({
     initialState: 'top-right',
@@ -209,7 +214,15 @@ function createContainer() {
           tag: 'button',
           class: 'close',
           innerText: 'close',
-          onClick: () => {
+          title: 'Alt + click to disable',
+          onClick: (e) => {
+            if (e.altKey) {
+              enabled = false
+              alert(
+                'Persistent logs disabled, refresh page or press "e" to enable again',
+              )
+            }
+
             removeContainer()
           },
         }),
