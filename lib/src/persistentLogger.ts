@@ -7,9 +7,15 @@ import { transition } from './utils/transition'
 
 let container: HTMLDivElement | null = null
 let enabled = false
+let _logTraces = false
 
-export function initializePersistentLogs() {
+export function initializePersistentLogs({
+  logTraces = false,
+}: {
+  logTraces?: boolean
+} = {}) {
   enabled = true
+  _logTraces = logTraces
 }
 
 function addKeyboardsShortcuts(e: KeyboardEvent) {
@@ -262,6 +268,10 @@ export function watchValue(
   const id = args.length === 1 ? '.' : args[0]
   const value = args.length === 1 ? args[0] : args[1]
   const options: Options = (args.length === 1 ? {} : args[2]) || {}
+
+  if (_logTraces) {
+    console.trace(`watchValue ${id}`, value)
+  }
 
   const {
     disableAutoFormat,
