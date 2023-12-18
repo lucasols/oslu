@@ -360,7 +360,7 @@ function removeExtraNotifications() {
   }
 }
 
-function hideAllNotifications() {
+export function hideAllNotifications() {
   if (!container) return
 
   const notifications =
