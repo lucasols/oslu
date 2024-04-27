@@ -31,14 +31,16 @@ function App() {
   watchValue('obj', {
     a: 1,
     b: 2,
-    c: 3,
-    d: [1, 2, 3],
+    c: 3.2,
+    d: [1, 2, 3, 'test, d', true, false, null],
     nested: {
       a: 1,
       b: 2,
       c: 'multiline\ntext\ntest:',
       undefined: undefined,
       string: 'string',
+      true: true,
+      false: false,
       html: '<div>html</div>',
       largeArray: Array(10).fill('sdkfsdfsdf'),
     },

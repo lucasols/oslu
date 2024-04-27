@@ -161,10 +161,10 @@ function createContainer() {
 
           > .key {
             font-weight: 500;
-            color: #a7f3d0;
+            color: #a5d6ff;
 
             &.array {
-              color: #a5f3fc;
+              color: #79c0ff;
             }
           }
 
@@ -172,9 +172,30 @@ function createContainer() {
             color: #fff;
           }
 
-          .value.string {
+          .empty-value {
+            opacity: 0.5;
+          }
+
+          .string {
             white-space: pre-wrap;
             color: #fef9c3;
+          }
+
+          .true {
+            color: #7ee787;
+          }
+
+          .false {
+            color: #ff7b72;
+          }
+
+          .number {
+            color: #79c0ff;
+          }
+
+          .syntax {
+            opacity: 0.4;
+            color: #a5d6ff;
           }
         }
       }
@@ -445,39 +466,25 @@ export function watchValue(
         const match = yamlKeyValueRegex.exec(valueLineTrimmed)
 
         if (isMultilineText) {
-          afterIndent = `<span class="value string">${htmlToText(valueLineTrimmed)}</span>`
+          afterIndent = `<span class="value string">${getYamlValueHtml(valueLineTrimmed)}</span>`
         } else {
           if (match) {
             const key = match[1]!
             const itemValue = match[2]!
 
-            let valueClass = ''
-
-            if (
-              (itemValue.startsWith('"') && itemValue.endsWith('"')) ||
-              (itemValue.startsWith("'") && itemValue.endsWith("'"))
-            ) {
-              valueClass = 'string'
-            }
-
-            afterIndent = `<span class="key">${key}</span>: <span class="value ${valueClass}">${htmlToText(itemValue)}</span>`
+            afterIndent = `<span class="key">${key}</span>: <span class="value ${getYamlValueClass(
+              itemValue,
+            )}">${getYamlValueHtml(itemValue)}</span>`
           } else if (afterIndent.endsWith(':')) {
             afterIndent = `<span class="key">${afterIndent.slice(0, -1)}</span>:`
           } else if (afterIndent.startsWith('- ')) {
             const arrVal = valueLineTrimmed.slice(2)
 
-            let valueClass = ''
-
-            if (
-              (arrVal.startsWith('"') && arrVal.endsWith('"')) ||
-              (arrVal.startsWith("'") && arrVal.endsWith("'"))
-            ) {
-              valueClass = 'string'
-            }
-
-            afterIndent = `<span class="key array">- </span><span class="value ${valueClass}">${htmlToText(arrVal)}</span>`
+            afterIndent = `<span class="key array">- </span><span class="value ${getYamlValueClass(
+              arrVal,
+            )}">${getYamlValueHtml(arrVal)}</span>`
           } else {
-            afterIndent = `<span class="value">${htmlToText(valueLineTrimmed)}</span>`
+            afterIndent = `<span class="value">${getYamlValueHtml(valueLineTrimmed)}</span>`
           }
         }
 
@@ -654,4 +661,63 @@ function htmlToText(htmlString: string) {
   text.innerText = escapedText
 
   return text.textContent || ''
+}
+
+const isNumberRegex = /^-?\d+(\.\d+)?$/
+
+function getYamlValueClass(value: string): string {
+  if (value.startsWith('"') && value.endsWith('"')) {
+    return 'string'
+  }
+
+  if (value.startsWith("'") && value.endsWith("'")) {
+    return 'string'
+  }
+
+  if (value === 'true') {
+    return 'true'
+  }
+
+  if (value === 'false') {
+    return 'false'
+  }
+
+  if (isNumberRegex.test(value)) {
+    return 'number'
+  }
+
+  if (
+    value === '[]' ||
+    value === '{}' ||
+    value === 'null' ||
+    value === 'undefined'
+  ) {
+    return 'empty-value'
+  }
+
+  return ''
+}
+
+function getYamlValueHtml(value: string): string {
+  let newValue = value
+
+  if (newValue.startsWith('[') && newValue.endsWith(']')) {
+    let valueContent = ''
+
+    for (const item of newValue
+      .slice(1, -1)
+      .split(/, (?=[0-9'"]|true|false|null|undefined)/)) {
+      if (valueContent.length > 0) {
+        valueContent += '</span><span class="syntax">, </span>'
+      }
+
+      valueContent += `<span class="array-item ${getYamlValueClass(item)}">${htmlToText(item)}</span>`
+    }
+
+    newValue = `<span class="syntax">[</span>${valueContent}<span class="syntax">]</span>`
+
+    return newValue
+  }
+
+  return htmlToText(value)
 }
