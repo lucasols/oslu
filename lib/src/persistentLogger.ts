@@ -186,7 +186,7 @@ function createContainer() {
           }
 
           .false {
-            color: #ff7b72;
+            color: #f9b97f;
           }
 
           .number {
