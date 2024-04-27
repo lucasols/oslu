@@ -56,14 +56,14 @@ function App() {
   })
   watchValue('test bug', {
     payload: {
-      object_type: 'PavcJkwZSvh8bgfSibKxW',
+      object_type: 'sC-vZmuWQo3TxtlRELtjw',
       data: {
-        id_PavcJkwZSvh8bgfSibKxW: null,
-        test: false,
+        'id_sC-vZmuWQo3TxtlRELtjw': null,
+        test: true,
       },
     },
     diffs: {},
-    count: 0,
+    count: 1,
   })
 
   return (

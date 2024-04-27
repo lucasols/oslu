@@ -26,7 +26,11 @@ function addKeyboardsShortcuts(e: KeyboardEvent) {
 
   if (!enabled && e.key === 'e') {
     enabled = true
-    alert('Persistent logs enabled')
+    alert('Persistent logs enabled, press "e" to disable')
+  }
+
+  if (e.key === 'Escape') {
+    removeContainer()
   }
 }
 
@@ -286,7 +290,7 @@ function createContainer() {
           tag: 'button',
           class: 'close',
           innerText: 'close',
-          title: 'Alt + click to disable',
+          title: 'Alt + click to disable, Esc to close',
           onClick: (e) => {
             if (e.altKey) {
               enabled = false
@@ -333,7 +337,8 @@ type Options = {
   }
 }
 
-const yamlKeyValueRegex = /^([^-]+): (.*)$/
+const yamlKeyValueRegex =
+  /^(.+): ((null|true|false|undefined|\|-|\||\>|\>-|\[|'|"|[0-9]|\{).*)$/
 
 export function watchValue<T>(value: T): T
 export function watchValue<T>(id: string, value: T, options?: Options): T
@@ -494,6 +499,10 @@ export function watchValue(
           isMultilineText = true
           multilineTextIndent = startIndent + 2
         }
+      }
+
+      if (yamlValue.endsWith('\n')) {
+        yamlValue = yamlValue.slice(0, -1)
       }
 
       varElement.content.onclick = (e) => {
