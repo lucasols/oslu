@@ -54,6 +54,17 @@ function App() {
   watchValue('with auto close', 'test', {
     autoCloseInMs: 2_000,
   })
+  watchValue('test bug', {
+    payload: {
+      object_type: 'PavcJkwZSvh8bgfSibKxW',
+      data: {
+        id_PavcJkwZSvh8bgfSibKxW: null,
+        test: false,
+      },
+    },
+    diffs: {},
+    count: 0,
+  })
 
   return (
     <div
