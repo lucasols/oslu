@@ -338,7 +338,7 @@ type Options = {
 }
 
 const yamlKeyValueRegex =
-  /^(.+): ((null|true|false|undefined|\|-|\||\>|\>-|\[|'|"|[0-9]|\{).*)$/
+  /^(.+): ((null|true|false|undefined|\|-|\||>|>-|\[|'|"|[0-9]|\{).*)$/
 
 export function watchValue<T>(value: T): T
 export function watchValue<T>(id: string, value: T, options?: Options): T
