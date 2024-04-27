@@ -449,18 +449,18 @@ export function watchValue(
         } else {
           if (match) {
             const key = match[1]!
-            const value = match[2]!
+            const itemValue = match[2]!
 
             let valueClass = ''
 
             if (
-              (value.startsWith('"') && value.endsWith('"')) ||
-              (value.startsWith("'") && value.endsWith("'"))
+              (itemValue.startsWith('"') && itemValue.endsWith('"')) ||
+              (itemValue.startsWith("'") && itemValue.endsWith("'"))
             ) {
               valueClass = 'string'
             }
 
-            afterIndent = `<span class="key">${key}</span>: <span class="value ${valueClass}">${htmlToText(value)}</span>`
+            afterIndent = `<span class="key">${key}</span>: <span class="value ${valueClass}">${htmlToText(itemValue)}</span>`
           } else if (afterIndent.endsWith(':')) {
             afterIndent = `<span class="key">${afterIndent.slice(0, -1)}</span>:`
           } else if (afterIndent.startsWith('- ')) {
