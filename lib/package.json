@@ -34,21 +34,21 @@
     "node": ">=16.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.8.2",
-    "@typescript-eslint/eslint-plugin": "^6.7.4",
-    "@typescript-eslint/parser": "^6.7.4",
-    "@vitest/ui": "^0.34.6",
-    "eslint": "^8.50.0",
-    "eslint-plugin-jest": "^27.4.2",
+    "@types/node": "^20.12.7",
+    "@typescript-eslint/eslint-plugin": "^7.7.1",
+    "@typescript-eslint/parser": "^7.7.1",
+    "@vitest/ui": "^1.5.2",
+    "eslint": "^8.57.0",
+    "eslint-plugin-jest": "^28.3.0",
+    "prettier": "^3.2.5",
     "tsm": "^2.3.0",
-    "tsup": "^7.2.0",
-    "prettier": "^3.0.3",
-    "typescript": "^5.2.2",
-    "vite": "^4.4.10",
-    "vitest": "^0.34.6"
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.10",
+    "vitest": "^1.5.2"
   },
   "dependencies": {
-    "goober": "^2.1.13",
-    "tiny-glob": "^0.2.9"
+    "@lucasols/utils": "^4.26.0",
+    "goober": "^2.1.14"
   }
 }

@@ -1,3 +1,4 @@
+import { yamlStringify } from '@lucasols/utils/yamlStringify'
 import { css } from 'goober'
 import { globalStyle } from './globalStyle'
 import { createElement, createElementWithState } from './utils/createElement'
@@ -95,6 +96,7 @@ function createContainer() {
           ${inline({ gap: 6, justify: 'spaceBetween' })};
           font-size: 11px;
           position: relative;
+          z-index: 1;
 
           > .var-name {
             opacity: 0.7;
@@ -103,6 +105,11 @@ function createContainer() {
           > button {
             ${transition()};
             opacity: 0;
+            padding: 10px;
+            margin: -10px;
+            z-index: 1;
+            line-height: 11px;
+            font-size: 14px;
           }
         }
 
@@ -110,13 +117,17 @@ function createContainer() {
           opacity: 0.5;
         }
 
-        .value {
-          font-size: 14px;
+        > .value {
+          font-size: 13px;
           white-space: pre-wrap;
-          font-weight: 500;
+          font-weight: 400;
 
           &.long {
-            font-size: 13px;
+            font-size: 12px;
+          }
+
+          &.null-or-undefined {
+            opacity: 0.4;
           }
 
           .sub-value {
@@ -130,6 +141,40 @@ function createContainer() {
               font-size: 10px;
               opacity: 0.5;
             }
+          }
+
+          &.yaml {
+            > .indent {
+              position: relative;
+
+              &::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: -3px;
+                bottom: 0;
+                width: 1px;
+                background: rgba(255, 255, 255, 0.1);
+              }
+            }
+          }
+
+          > .key {
+            font-weight: 500;
+            color: #a7f3d0;
+
+            &.array {
+              color: #a5f3fc;
+            }
+          }
+
+          > .value {
+            color: #fff;
+          }
+
+          .value.string {
+            white-space: pre-wrap;
+            color: #fef9c3;
           }
         }
       }
@@ -258,7 +303,16 @@ type Options = {
   alignLeft?: boolean
   lastNValues?: number
   lastNDiffValues?: number
+  fontSize?: number
+  autoCloseInMs?: number
+  objFormat?: {
+    yamlMaxLineLength?: number
+    useJSON?: boolean
+    yamlHideUndefined?: boolean
+  }
 }
+
+const yamlKeyValueRegex = /^([^-]+): (.*)$/
 
 export function watchValue<T>(value: T): T
 export function watchValue<T>(id: string, value: T, options?: Options): T
@@ -280,6 +334,9 @@ export function watchValue(
     maxFractionDigits = minFractionDigits ? undefined : 4,
     lastNValues,
     lastNDiffValues,
+    objFormat,
+    fontSize,
+    autoCloseInMs,
   } = options
 
   if (!enabled) return
@@ -291,18 +348,44 @@ export function watchValue(
 
   const varElement = getVarContentElement(id)
 
+  let isYaml = false
+
   if (!disableAutoFormat) {
     if (typeof value === 'object' && value !== null) {
-      newValue = JSON.stringify(value, null, 2)
+      varElement.content.ondblclick = () => {
+        navigator.clipboard.writeText(JSON.stringify(value, null, 2))
+        alert('Copied as JSON to clipboard')
+      }
+
+      if (objFormat?.useJSON) {
+        newValue = JSON.stringify(value, null, 2)
+
+        varElement.content.onclick = (e) => {
+          if (e.shiftKey) {
+            watchValue(id, value, { objFormat: { useJSON: false } })
+            return
+          }
+        }
+
+        varElement.content.title = 'Shift+click to view as YAML'
+      } else {
+        newValue = yamlStringify(value, {
+          maxLineLength: objFormat?.yamlMaxLineLength,
+          showUndefined: true,
+        })
+        isYaml = true
+      }
 
       alignLeft = true
-    }
-
-    if (typeof value === 'number') {
+    } else if (typeof value === 'number') {
       newValue = new Intl.NumberFormat('en', {
         maximumFractionDigits: maxFractionDigits,
         minimumFractionDigits: minFractionDigits,
       }).format(value)
+    } else if (value === null) {
+      newValue = 'null'
+    } else if (value === '') {
+      newValue = 'empty string'
     }
   }
 
@@ -336,18 +419,120 @@ export function watchValue(
 
     varElement.content.prepend(valueElement)
   } else {
-    varElement.content.innerText = newValue
+    if (isYaml) {
+      let yamlValue = ''
+
+      varElement.content.classList.add('yaml')
+
+      const valueLines = String(newValue).split('\n')
+
+      let isMultilineText = false
+      let multilineTextIndent = 0
+
+      for (const valueLine of valueLines) {
+        const valueLineTrimmed = valueLine.trimStart()
+
+        const startIndent = valueLine.length - valueLineTrimmed.length
+
+        if (isMultilineText) {
+          if (startIndent < multilineTextIndent) {
+            isMultilineText = false
+          }
+        }
+
+        let afterIndent = valueLineTrimmed
+
+        const match = yamlKeyValueRegex.exec(valueLineTrimmed)
+
+        if (isMultilineText) {
+          afterIndent = `<span class="value string">${htmlToText(valueLineTrimmed)}</span>`
+        } else {
+          if (match) {
+            const key = match[1]!
+            const value = match[2]!
+
+            let valueClass = ''
+
+            if (
+              (value.startsWith('"') && value.endsWith('"')) ||
+              (value.startsWith("'") && value.endsWith("'"))
+            ) {
+              valueClass = 'string'
+            }
+
+            afterIndent = `<span class="key">${key}</span>: <span class="value ${valueClass}">${htmlToText(value)}</span>`
+          } else if (afterIndent.endsWith(':')) {
+            afterIndent = `<span class="key">${afterIndent.slice(0, -1)}</span>:`
+          } else if (afterIndent.startsWith('- ')) {
+            const arrVal = valueLineTrimmed.slice(2)
+
+            let valueClass = ''
+
+            if (
+              (arrVal.startsWith('"') && arrVal.endsWith('"')) ||
+              (arrVal.startsWith("'") && arrVal.endsWith("'"))
+            ) {
+              valueClass = 'string'
+            }
+
+            afterIndent = `<span class="key array">- </span><span class="value ${valueClass}">${htmlToText(arrVal)}</span>`
+          } else {
+            afterIndent = `<span class="value">${htmlToText(valueLineTrimmed)}</span>`
+          }
+        }
+
+        yamlValue += `${'<span class="indent">  </span>'.repeat(startIndent / 2)}${afterIndent}\n`
+
+        if (valueLine.endsWith(': |') || valueLine.endsWith(': |-')) {
+          isMultilineText = true
+          multilineTextIndent = startIndent + 2
+        }
+      }
+
+      varElement.content.onclick = (e) => {
+        if (e.shiftKey) {
+          watchValue(id, value, { objFormat: { useJSON: true } })
+          return
+        }
+      }
+
+      varElement.content.title =
+        'Double click to copy as JSON\nShift+click to view as JSON'
+
+      varElement.content.innerHTML = yamlValue
+    } else {
+      varElement.content.innerText = newValue
+    }
+
     const stringValue = String(newValue)
+
+    if (value === undefined || value === null || value === '') {
+      varElement.content.classList.add('null-or-undefined')
+    }
 
     if (stringValue.length > 100 || stringValue.split('\n').length > 1) {
       varElement.content.classList.add('long')
     }
   }
 
+  if (fontSize) {
+    varElement.content.style.fontSize = `${fontSize}px`
+  }
+
   if (alignLeft) {
     varElement.container.classList.add('alignLeft')
   } else {
     varElement.container.classList.remove('alignLeft')
+  }
+
+  if (autoCloseInMs) {
+    const autoCloseTimeoutId = window.setTimeout(() => {
+      removeVar(id)
+    }, autoCloseInMs)
+
+    varElement.content.onmouseenter = () => {
+      clearTimeout(autoCloseTimeoutId)
+    }
   }
 
   return value
@@ -410,7 +595,7 @@ function getVarContentElement(id: string): {
     ],
   })
 
-  content.appendChild(newElement)
+  content.prepend(newElement)
 
   return {
     content: valueElement,
@@ -447,4 +632,26 @@ export function watchCount(
   return () => {
     removeVar(id)
   }
+}
+
+const escapeRegex = /[&<>"']/g
+
+const escapeMap: Record<string, string> = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+}
+
+function htmlToText(htmlString: string) {
+  const escapedText = htmlString.replace(
+    escapeRegex,
+    (match) => escapeMap[match] || '',
+  )
+
+  const text = document.createElement('div')
+  text.innerText = escapedText
+
+  return text.textContent || ''
 }

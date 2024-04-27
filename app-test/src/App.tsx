@@ -1,6 +1,9 @@
 import { useState } from 'react'
-import { watchValue } from '../../lib/src/main'
-import { logErrorOnScreen, logInfoOnScreen } from '../../lib/src/main'
+import {
+  logErrorOnScreen,
+  logInfoOnScreen,
+  watchValue,
+} from '../../lib/src/main'
 import { watchCount } from '../../lib/src/persistentLogger'
 import './App.css'
 
@@ -22,7 +25,30 @@ function App() {
   watchValue('long number', count * 12345)
   watchValue('text', 'text')
   watchValue('long text', lorenIpsum)
-  watchValue('obj', { a: 1, b: 2, c: 3 })
+  watchValue('undefined', undefined)
+  watchValue('null', null)
+  watchValue('empty string', '')
+  watchValue('obj', {
+    a: 1,
+    b: 2,
+    c: 3,
+    d: [1, 2, 3],
+    nested: {
+      a: 1,
+      b: 2,
+      c: 'multiline\ntext\ntest:',
+      undefined: undefined,
+      string: 'string',
+      html: '<div>html</div>',
+      largeArray: Array(10).fill('sdkfsdfsdf'),
+    },
+  })
+  watchValue('with custom font size', 'test', {
+    fontSize: 20,
+  })
+  watchValue('with auto close', 'test', {
+    autoCloseInMs: 2_000,
+  })
 
   return (
     <div
@@ -133,6 +159,17 @@ function App() {
           }}
         >
           watch value default
+        </button>
+
+        <button
+          onClick={() => {
+            watchValue('with auto close', 'test', {
+              fontSize: 20,
+              autoCloseInMs: 2_000,
+            })
+          }}
+        >
+          watch value with auto close
         </button>
 
         <button
