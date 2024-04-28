@@ -87,6 +87,13 @@ function createContainer() {
         ${stack({ gap: 4 })};
         padding: 2px 6px;
         text-align: right;
+        overflow: hidden;
+        transition: 160ms ease-out;
+        opacity: 0;
+
+        &.show {
+          opacity: 1;
+        }
 
         &.alignLeft {
           text-align: left;
@@ -551,6 +558,8 @@ export function watchValue(
     }
   }
 
+  varElement.render()
+
   return value
 }
 
@@ -573,6 +582,7 @@ export function removeVar(id: string) {
 function getVarContentElement(id: string): {
   content: HTMLDivElement
   container: HTMLDivElement
+  render: () => void
 } {
   if (!container) throw new Error('Container not found')
 
@@ -586,6 +596,7 @@ function getVarContentElement(id: string): {
     return {
       content: currentElement.querySelector<HTMLDivElement>('.value')!,
       container: currentElement,
+      render: () => {},
     }
 
   const valueElement = createElement({ class: 'value' })
@@ -611,11 +622,28 @@ function getVarContentElement(id: string): {
     ],
   })
 
-  content.prepend(newElement)
+  // newElement.style.height = '0'
 
   return {
     content: valueElement,
     container: newElement,
+    render: () => {
+      content.prepend(newElement)
+
+      const realSize = newElement.getBoundingClientRect().height
+
+      newElement.style.height = '0'
+
+      newElement.classList.add('show')
+
+      setTimeout(() => {
+        newElement.style.height = `${realSize}px`
+
+        setTimeout(() => {
+          newElement.style.height = 'auto'
+        }, 300)
+      }, 10)
+    },
   }
 }
 
@@ -644,6 +672,8 @@ export function watchCount(
   } else {
     varElement.container.classList.remove('alignLeft')
   }
+
+  varElement.render()
 
   return () => {
     removeVar(id)
