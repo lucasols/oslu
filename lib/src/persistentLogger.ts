@@ -713,14 +713,16 @@ function getYamlValueHtml(value: string): string {
   if (newValue.startsWith('[') && newValue.endsWith(']')) {
     let valueContent = ''
 
-    for (const item of newValue
+    for (let item of newValue
       .slice(1, -1)
       .split(/, (?=[0-9'"]|true|false|null|undefined)/)) {
       if (valueContent.length > 0) {
         valueContent += '</span><span class="syntax">, </span>'
       }
 
-      valueContent += `<span class="array-item ${getYamlValueClass(item)}">${htmlToText(item)}</span>`
+      valueContent += `<span class="array-item ${getYamlValueClass(item)}">${
+        item.includes(' ') ? htmlToText(item) : getYamlValueHtml(item)
+      }</span>`
     }
 
     newValue = `<span class="syntax">[</span>${valueContent}<span class="syntax">]</span>`
@@ -728,5 +730,14 @@ function getYamlValueHtml(value: string): string {
     return newValue
   }
 
-  return htmlToText(value)
+  if (
+    (newValue.startsWith("'") && newValue.endsWith("'")) ||
+    (newValue.startsWith('"') && newValue.endsWith('"'))
+  ) {
+    newValue = newValue.slice(1, -1)
+
+    return htmlToText(newValue)
+  }
+
+  return htmlToText(newValue)
 }
