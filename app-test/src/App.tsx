@@ -32,7 +32,7 @@ function App() {
     a: 1,
     b: 2,
     c: 3.2,
-    d: [1, 2, 3, 'test, d', true, false, null],
+    d: [1, 2, 3, 'test, d', 'test', true, false, null],
     nested: {
       a: 1,
       b: 2,
