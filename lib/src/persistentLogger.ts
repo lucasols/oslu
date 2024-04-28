@@ -740,7 +740,7 @@ function getYamlValueClass(value: string): string {
 function getYamlValueHtml(value: string): string {
   let newValue = value
 
-  if (newValue.startsWith('[') && newValue.endsWith(']')) {
+  if (newValue.startsWith('[') && newValue.endsWith(']') && newValue !== '[]') {
     let valueContent = ''
 
     for (const item of newValue

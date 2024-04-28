@@ -42,8 +42,9 @@ function App() {
       true: true,
       false: false,
       false_2: false,
-      false_3: false,
+      emptyArray: [],
       false_4: false,
+      emptyObj: {},
       html: '<div>html</div>',
       largeArray: Array(10).fill('sdkfsdfsdf'),
     },
@@ -53,17 +54,6 @@ function App() {
   })
   watchValue('with auto close', 'test', {
     autoCloseInMs: 2_000,
-  })
-  watchValue('test bug', {
-    payload: {
-      object_type: 'sC-vZmuWQo3TxtlRELtjw',
-      data: {
-        'id_sC-vZmuWQo3TxtlRELtjw': null,
-        test: true,
-      },
-    },
-    diffs: {},
-    count: 1,
   })
 
   return (
