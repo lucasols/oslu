@@ -713,7 +713,7 @@ function getYamlValueHtml(value: string): string {
   if (newValue.startsWith('[') && newValue.endsWith(']')) {
     let valueContent = ''
 
-    for (let item of newValue
+    for (const item of newValue
       .slice(1, -1)
       .split(/, (?=[0-9'"]|true|false|null|undefined)/)) {
       if (valueContent.length > 0) {
