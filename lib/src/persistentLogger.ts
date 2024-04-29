@@ -90,6 +90,7 @@ function createContainer() {
         overflow: hidden;
         transition: 160ms ease-out;
         opacity: 0;
+        overflow-x: auto;
 
         &.show {
           opacity: 1;
@@ -106,7 +107,8 @@ function createContainer() {
         .title {
           ${inline({ gap: 6, justify: 'spaceBetween' })};
           font-size: 11px;
-          position: relative;
+          position: sticky;
+          left: 0;
           z-index: 1;
 
           > .var-name {
@@ -128,7 +130,7 @@ function createContainer() {
           opacity: 0.5;
         }
 
-        > .value {
+        > .log-value {
           font-size: 13px;
           white-space: pre-wrap;
           font-weight: 400;
@@ -155,6 +157,8 @@ function createContainer() {
           }
 
           &.yaml {
+            width: max-content;
+
             > .indent {
               position: relative;
 
@@ -188,7 +192,7 @@ function createContainer() {
           }
 
           .string {
-            white-space: pre-wrap;
+            white-space: pre;
             color: #fef9c3;
           }
 
@@ -594,12 +598,12 @@ function getVarContentElement(id: string): {
 
   if (currentElement)
     return {
-      content: currentElement.querySelector<HTMLDivElement>('.value')!,
+      content: currentElement.querySelector<HTMLDivElement>('.log-value')!,
       container: currentElement,
       render: () => {},
     }
 
-  const valueElement = createElement({ class: 'value' })
+  const valueElement = createElement({ class: 'log-value' })
 
   const newElement = createElement({
     class: 'var',
@@ -621,8 +625,6 @@ function getVarContentElement(id: string): {
       valueElement,
     ],
   })
-
-  // newElement.style.height = '0'
 
   return {
     content: valueElement,
