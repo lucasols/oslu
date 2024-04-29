@@ -1,7 +1,7 @@
 {
   "name": "oslu",
   "description": "On Screen Log Utils",
-  "version": "0.18.1",
+  "version": "0.18.2",
   "license": "MIT",
   "scripts": {
     "test": "vitest --ui",
