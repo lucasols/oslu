@@ -109,6 +109,7 @@ function createContainer() {
           font-size: 11px;
           position: sticky;
           left: 0;
+          top: 0;
           z-index: 1;
 
           > .var-name {
