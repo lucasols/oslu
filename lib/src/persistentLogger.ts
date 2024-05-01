@@ -386,6 +386,8 @@ export function watchValue(
 
   const varElement = getVarContentElement(id)
 
+  varElement.content.classList.remove('null-or-undefined', 'long', 'yaml')
+
   let isYaml = false
 
   if (!disableAutoFormat) {
