@@ -36,8 +36,8 @@ importers:
   lib:
     dependencies:
       '@lucasols/utils':
-        specifier: ^4.26.2
-        version: 4.26.2
+        specifier: ^4.27.0
+        version: 4.27.0
       goober:
         specifier: ^2.1.14
         version: 2.1.14(csstype@3.1.3)
@@ -591,8 +591,8 @@ packages:
     resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
     dev: true
 
-  /@lucasols/utils@4.26.2:
-    resolution: {integrity: sha512-1UHK9s8/6wmb/Yojk4thEzN/4mhC1A5c+PbcA5hG4ttDSP3XLq5YHWnOT/H1po05ojxVQhooL/D6y+rkvV3I4w==}
+  /@lucasols/utils@4.27.0:
+    resolution: {integrity: sha512-oawoQDsGcQSehZbot2eht/xk6CTlcZOLblea6K0KLQUkUSDg/piVwMHTetQX75gytGmYQ/dwXRCz/nM+Oq4x5A==}
     engines: {node: '>=20.0.0'}
     dev: false
 
