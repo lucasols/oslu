@@ -48,7 +48,7 @@
     "vitest": "^1.5.2"
   },
   "dependencies": {
-    "@lucasols/utils": "^4.26.2",
+    "@lucasols/utils": "^4.27.0",
     "goober": "^2.1.14"
   }
 }
