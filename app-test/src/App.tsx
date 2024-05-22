@@ -7,6 +7,10 @@ import {
 import { watchCount } from '../../lib/src/persistentLogger'
 import './App.css'
 
+const Comp = () => {
+  return <div>test</div>
+}
+
 logErrorOnScreen('Error on app start')
 
 const lorenIpsum =
@@ -59,6 +63,11 @@ function App() {
   watchValue('bug', null)
 
   watchValue('bug', { a: 'should not be faded out' })
+
+  watchValue(
+    'very long title sdflks djflksdjflk sdlkfjlksdj lkfjsdlkjfl ksjdlkfjsdlfjlksdjf sdlfkjdsjfl',
+    { a: 'title should not overflow' },
+  )
 
   return (
     <div

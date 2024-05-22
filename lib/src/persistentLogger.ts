@@ -105,7 +105,7 @@ function createContainer() {
         }
 
         .title {
-          ${inline({ gap: 6, justify: 'spaceBetween' })};
+          ${inline({ gap: 6, justify: 'spaceBetween', align: 'top' })};
           font-size: 11px;
           position: sticky;
           left: 0;
@@ -114,6 +114,7 @@ function createContainer() {
 
           > .var-name {
             opacity: 0.7;
+            flex-shrink: 1;
           }
 
           > button {
@@ -350,7 +351,9 @@ type Options = {
 }
 
 const yamlKeyValueRegex =
-  /^(.+): ((null|true|false|undefined|\|-|\||>|>-|\[|'|"|[0-9]|\{).*)$/
+  /^(.+?): ((null|true|false|undefined|\|-|\||>|>-|\[|'|"|[0-9]|\{).*)$/
+
+const autoCloseTimeoutsIds = new WeakMap<HTMLDivElement, number>()
 
 export function watchValue<T>(value: T): T
 export function watchValue<T>(id: string, value: T, options?: Options): T
@@ -556,9 +559,16 @@ export function watchValue(
   }
 
   if (autoCloseInMs) {
-    const autoCloseTimeoutId = window.setTimeout(() => {
-      removeVar(id)
-    }, autoCloseInMs)
+    const autoCloseTimeoutId = autoCloseTimeoutsIds.get(varElement.container)
+
+    if (autoCloseTimeoutId) clearTimeout(autoCloseTimeoutId)
+
+    autoCloseTimeoutsIds.set(
+      varElement.container,
+      window.setTimeout(() => {
+        removeVar(id)
+      }, autoCloseInMs),
+    )
 
     varElement.content.onmouseenter = () => {
       clearTimeout(autoCloseTimeoutId)
@@ -578,6 +588,12 @@ export function removeVar(id: string) {
   )
 
   if (!varElement) return
+
+  const timeoutId = autoCloseTimeoutsIds.get(varElement)
+
+  if (timeoutId) {
+    clearTimeout(timeoutId)
+  }
 
   varElement.remove()
 
