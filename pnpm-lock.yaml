@@ -31,13 +31,13 @@ importers:
         version: 5.4.5
       vite:
         specifier: ^5.2.10
-        version: 5.2.10(@types/node@20.12.7)
+        version: 5.2.10
 
   lib:
     dependencies:
       '@lucasols/utils':
-        specifier: ^4.27.0
-        version: 4.27.0
+        specifier: ^4.27.1
+        version: 4.27.1
       goober:
         specifier: ^2.1.14
         version: 2.1.14(csstype@3.1.3)
@@ -73,8 +73,8 @@ importers:
         specifier: ^5.4.5
         version: 5.4.5
       vite:
-        specifier: ^5.2.10
-        version: 5.2.10(@types/node@20.12.7)
+        specifier: ^5.2.11
+        version: 5.2.11(@types/node@20.12.7)
       vitest:
         specifier: ^1.5.2
         version: 1.5.2(@types/node@20.12.7)(@vitest/ui@1.5.2)
@@ -591,8 +591,8 @@ packages:
     resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
     dev: true
 
-  /@lucasols/utils@4.27.0:
-    resolution: {integrity: sha512-oawoQDsGcQSehZbot2eht/xk6CTlcZOLblea6K0KLQUkUSDg/piVwMHTetQX75gytGmYQ/dwXRCz/nM+Oq4x5A==}
+  /@lucasols/utils@4.27.1:
+    resolution: {integrity: sha512-nwCYdcHD4XMwyyFHZ58kk0xVgGSvkgthyTAWb0ipY9C3npQBdGgXI3Oe2oh5JLaTYABHOcwFh9vsqnKXwSUmMw==}
     engines: {node: '>=20.0.0'}
     dev: false
 
@@ -1124,7 +1124,7 @@ packages:
       vite: ^4 || ^5
     dependencies:
       '@swc/core': 1.4.17
-      vite: 5.2.10(@types/node@20.12.7)
+      vite: 5.2.10
     transitivePeerDependencies:
       - '@swc/helpers'
     dev: true
@@ -2876,7 +2876,7 @@ packages:
       debug: 4.3.4
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 5.2.10(@types/node@20.12.7)
+      vite: 5.2.11(@types/node@20.12.7)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -2888,8 +2888,43 @@ packages:
       - terser
     dev: true
 
-  /vite@5.2.10(@types/node@20.12.7):
+  /vite@5.2.10:
     resolution: {integrity: sha512-PAzgUZbP7msvQvqdSD+ErD5qGnSFiGOoWmV5yAKUEI0kdhjbH6nMWVyZQC/hSc4aXwc0oJ9aEdIiF9Oje0JFCw==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': ^18.0.0 || >=20.0.0
+      less: '*'
+      lightningcss: ^1.21.0
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      lightningcss:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      esbuild: 0.20.2
+      postcss: 8.4.38
+      rollup: 4.17.0
+    optionalDependencies:
+      fsevents: 2.3.3
+    dev: true
+
+  /vite@5.2.11(@types/node@20.12.7):
+    resolution: {integrity: sha512-HndV31LWW05i1BLPMUCE1B9E9GFbOu1MbenhS58FuK6owSO5qHm7GiCotrNY1YE5rMeQSFBGmT5ZaLEjFizgiQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -2968,7 +3003,7 @@ packages:
       strip-literal: 2.1.0
       tinybench: 2.5.1
       tinypool: 0.8.4
-      vite: 5.2.10(@types/node@20.12.7)
+      vite: 5.2.11(@types/node@20.12.7)
       vite-node: 1.5.2(@types/node@20.12.7)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:

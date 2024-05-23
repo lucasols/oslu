@@ -1,7 +1,7 @@
 {
   "name": "oslu",
   "description": "On Screen Log Utils",
-  "version": "0.19.1",
+  "version": "0.19.2",
   "license": "MIT",
   "scripts": {
     "test": "vitest --ui",
@@ -48,7 +48,7 @@
     "vitest": "^1.5.2"
   },
   "dependencies": {
-    "@lucasols/utils": "^4.27.0",
+    "@lucasols/utils": "^4.27.1",
     "goober": "^2.1.14"
   }
 }
