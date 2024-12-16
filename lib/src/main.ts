@@ -1,11 +1,12 @@
 export {
-  logErrorOnScreen,
-  logInfoOnScreen,
-  initializeTempLogs,
-  hideAllNotifications as clearAllLogs,
-} from './tempLogger'
-export {
-  watchValue,
   initializePersistentLogs,
   watchCount,
+  watchValue,
 } from './persistentLogger'
+export {
+  hideAllNotifications as clearAllLogs,
+  initializeTempLogs,
+  logErrorOnScreen,
+  logErrorWithoutLogOnScreen,
+  logInfoOnScreen,
+} from './tempLogger'

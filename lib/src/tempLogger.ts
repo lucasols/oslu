@@ -1,21 +1,24 @@
 import { css } from 'goober'
-import { centerContent } from './utils/centerContent'
-import { inline } from './utils/inline'
-import { stack } from './utils/stack'
 import { globalStyle } from './globalStyle'
-import { transition } from './utils/transition'
+import { centerContent } from './utils/centerContent'
 import { createElement } from './utils/createElement'
+import { inline } from './utils/inline'
 import { jsonFormatter } from './utils/jsonFormatter'
+import { stack } from './utils/stack'
+import { transition } from './utils/transition'
 
 let container: HTMLDivElement | null = null
 
 const defaultErrorLogger = console.error
-let ignoreErrorPatterns: (RegExp | string)[] = []
+
+type IgnoreErrorPatterns = RegExp | string | ((err: any) => boolean)
+
+let ignoreErrorPatterns: IgnoreErrorPatterns[] = []
 
 export function initializeTempLogs({
   ignoreErrors,
 }: {
-  ignoreErrors: (RegExp | string)[]
+  ignoreErrors: IgnoreErrorPatterns[]
 }) {
   ignoreErrorPatterns = ignoreErrors
 
@@ -128,10 +131,11 @@ export function initializeTempLogs({
 }
 
 function addErrorsListeners() {
-  window.onerror = (message) => {
+  window.onerror = (message, _, __, ___, error) => {
     logOnScreen('error', message, {
       timeout: false,
       disableConsoleLog: true,
+      _error: error,
     })
   }
 
@@ -139,6 +143,7 @@ function addErrorsListeners() {
     logOnScreen('error', String(event.reason), {
       timeout: false,
       disableConsoleLog: true,
+      _error: event.reason,
     })
   }
 
@@ -146,10 +151,17 @@ function addErrorsListeners() {
     logOnScreen('error', args, {
       timeout: 15_000,
       disableConsoleLog: true,
+      _error: new Error('console.error', {
+        cause: args,
+      }),
     })
 
     defaultErrorLogger(...args)
   }
+}
+
+export function logErrorWithoutLogOnScreen(...args: any[]) {
+  defaultErrorLogger(...args)
 }
 
 const errorIcon = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--ic" width="32" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"></path></svg>`
@@ -160,6 +172,7 @@ interface LogOnScreenOptions {
   disableConsoleLog?: boolean
   disableDebounceOfDuplicatedErrors?: boolean
   iconChar?: string
+  _error?: Error
 }
 
 const errorsLoggedInLast10Seconds = new Map<string, { timeout: number }>()
@@ -177,6 +190,7 @@ function logOnScreen(
     iconChar,
     disableConsoleLog,
     disableDebounceOfDuplicatedErrors,
+    _error,
   }: LogOnScreenOptions = {},
 ) {
   if (!container) return
@@ -185,11 +199,15 @@ function logOnScreen(
 
   if (
     type === 'error' &&
-    ignoreErrorPatterns.some((pattern) =>
-      typeof pattern === 'string'
+    ignoreErrorPatterns.some((pattern) => {
+      if (typeof pattern === 'function') {
+        return _error && pattern(_error)
+      }
+
+      return typeof pattern === 'string'
         ? messageString.includes(pattern)
-        : messageString.match(pattern),
-    )
+        : messageString.match(pattern)
+    })
   ) {
     return
   }
@@ -220,8 +238,8 @@ function logOnScreen(
   const icon = iconChar
     ? `<div class="icon-letter">${iconChar.slice(0, 4).toLowerCase()}</div>`
     : type === 'error'
-    ? errorIcon
-    : 'ℹ︎'
+      ? errorIcon
+      : 'ℹ︎'
 
   const logContentContainer = createElement({
     class: `log-content-container`,
