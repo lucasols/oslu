@@ -1,9 +1,10 @@
+/* eslint-disable no-console */
+import { yamlStringify } from '@lucasols/utils/yamlStringify'
 import { css } from 'goober'
 import { globalStyle } from './globalStyle'
 import { centerContent } from './utils/centerContent'
 import { createElement } from './utils/createElement'
 import { inline } from './utils/inline'
-import { jsonFormatter } from './utils/jsonFormatter'
 import { stack } from './utils/stack'
 import { transition } from './utils/transition'
 
@@ -55,6 +56,18 @@ export function initializeTempLogs({
         .content {
           .item {
             background-color: rgba(229, 53, 88, 0.16);
+          }
+        }
+      }
+
+      &.warn {
+        .icon {
+          color: #f59e0b;
+        }
+
+        .content {
+          .item {
+            background-color: rgba(245, 158, 11, 0.16);
           }
         }
       }
@@ -166,6 +179,8 @@ export function logErrorWithoutLogOnScreen(...args: any[]) {
 
 const errorIcon = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--ic" width="32" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"></path></svg>`
 
+const warnIcon = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--ic" width="32" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><path d="M1 21h22L12 2L1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" fill="currentColor"></path></svg>`
+
 interface LogOnScreenOptions {
   /** timeout of the log in ms */
   timeout?: number | false
@@ -183,7 +198,7 @@ const logsAutohideTimeouts = new Map<
 >()
 
 function logOnScreen(
-  type: 'error' | 'info',
+  type: 'error' | 'info' | 'warn',
   message: any,
   {
     timeout = 10_000,
@@ -239,12 +254,14 @@ function logOnScreen(
     ? `<div class="icon-letter">${iconChar.slice(0, 4).toLowerCase()}</div>`
     : type === 'error'
       ? errorIcon
-      : 'ℹ︎'
+      : type === 'warn'
+        ? warnIcon
+        : 'ℹ︎'
 
   const logContentContainer = createElement({
     class: `log-content-container`,
     innerHTML: `<div class="icon">${icon}</div>`,
-    title: `Click to close, or shift+click to close all`,
+    title: `Click to close, shift+click to close all, ctrl+click to copy`,
     dataset: {
       messageId:
         type === 'error' && !disableDebounceOfDuplicatedErrors && messageString,
@@ -267,7 +284,10 @@ function logOnScreen(
         if (typeof item === 'string' || typeof item === 'number') {
           itemContent = String(item)
         }
-        itemContent = jsonFormatter(item)
+        itemContent = yamlStringify(item, {
+          maxLineLength: 100,
+          maxDepth: 5,
+        })
 
         return `<div class="item">${itemContent}</div>`
       })
@@ -313,12 +333,32 @@ function logOnScreen(
   }
 
   addElementEvent(notification, 'click', (e: MouseEvent) => {
-    window.clearTimeout(timeoutId)
-    hideNotification(notification)
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault()
+      const msgString = Array.isArray(message)
+        ? message
+            .map((item) =>
+              typeof item === 'string' || typeof item === 'number'
+                ? String(item)
+                : JSON.stringify(item, null, 2),
+            )
+            .join('\n')
+        : typeof message === 'string' || typeof message === 'number'
+          ? String(message)
+          : JSON.stringify(message, null, 2)
+
+      void navigator.clipboard.writeText(msgString)
+      return
+    }
 
     if (e.shiftKey) {
+      window.clearTimeout(timeoutId)
       hideAllNotifications()
+      return
     }
+
+    window.clearTimeout(timeoutId)
+    hideNotification(notification)
   })
 
   removeExtraNotifications()
@@ -346,6 +386,10 @@ export function logInfoOnScreen(
   options?: LogOnScreenOptions,
 ) {
   logOnScreen('info', message, { ...options, iconChar: icon })
+}
+
+export function logWarnOnScreen(message: any, options?: LogOnScreenOptions) {
+  logOnScreen('warn', message, options)
 }
 
 function hideNotification(notification: HTMLDivElement) {

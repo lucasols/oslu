@@ -1,3 +1,6 @@
 {
-  "name": "olsu-monorepo"
+  "name": "olsu-monorepo",
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
 }

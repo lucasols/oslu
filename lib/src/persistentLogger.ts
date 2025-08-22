@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { yamlStringify } from '@lucasols/utils/yamlStringify'
 import { css } from 'goober'
 import { globalStyle } from './globalStyle'
@@ -242,13 +243,8 @@ function createContainer() {
       }
     }
   `
-  const positions = [
-    'top-right',
-    'bottom-right',
-    'bottom-left',
-    'top-left',
-  ] as const
-  type Positions = (typeof positions)[number]
+
+  type Positions = 'top-right' | 'bottom-right' | 'bottom-left' | 'top-left'
 
   const containerComp = createElementWithState<Positions>({
     initialState: 'top-right',
@@ -396,7 +392,7 @@ export function watchValue(
   if (!disableAutoFormat) {
     if (typeof value === 'object' && value !== null) {
       varElement.content.ondblclick = () => {
-        navigator.clipboard.writeText(JSON.stringify(value, null, 2))
+        void navigator.clipboard.writeText(JSON.stringify(value, null, 2))
         alert('Copied as JSON to clipboard')
       }
 

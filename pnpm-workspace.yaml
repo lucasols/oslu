@@ -1,3 +1,7 @@
 packages:
-  - 'app-test'
-  - 'lib'
+  - app-test
+  - lib
+
+onlyBuiltDependencies:
+  - '@swc/core'
+  - esbuild

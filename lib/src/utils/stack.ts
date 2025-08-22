@@ -20,7 +20,6 @@ export type StackProps = {
   gap?: string | number
 }
 
-// TODO: change spacing to gap
 
 export const stack = ({
   justify = 'top',
