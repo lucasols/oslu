@@ -5,6 +5,7 @@ import {
   watchValue,
 } from '../../lib/src/main'
 import { watchCount } from '../../lib/src/persistentLogger'
+import { logWarnOnScreen } from '../../lib/src/tempLogger'
 import './App.css'
 
 const Comp = () => {
@@ -64,6 +65,40 @@ function App() {
 
   watchValue('bug', { a: 'should not be faded out' })
 
+  watchValue('yaml demo', {
+    'key:with:colon': 1,
+    '"quoted:key"': 2,
+    'xss <img src=x onerror=alert(1)>': 'escaped',
+    'htmlLikeKey <div>': 'ok',
+    inlineArray: [1, -2, 3, ['a', 'b'], { a: 1, b: 2 }],
+    scientific: -1e-3,
+    hexNumber: 0x1f,
+    binNumber: 0b1010,
+    octNumber: 0o777,
+    inf: Infinity,
+    negInf: -Infinity,
+    nan: Number.NaN,
+    multiline: 'line 1\nline 2\nline 3',
+    undef: undefined,
+  })
+
+  watchValue(
+    'yaml demo (hide undefined)',
+    {
+      inlineArray: [1, -2, 3, ['a', 'b'], { a: 1, b: 2 }],
+      scientific: -1e-3,
+      hexNumber: 0x1f,
+      binNumber: 0b1010,
+      octNumber: 0o777,
+      inf: Infinity,
+      negInf: -Infinity,
+      nan: Number.NaN,
+      multiline: 'line 1\nline 2\nline 3',
+      undef: undefined,
+    },
+    { objFormat: { yamlHideUndefined: true } },
+  )
+
   watchValue(
     'very long title sdflks djflksdjflk sdlkfjlksdj lkfjsdlkjfl ksjdlkfjsdlfjlksdjf sdlfkjdsjfl',
     { a: 'title should not overflow' },
@@ -121,6 +156,15 @@ function App() {
         >
           log info with custom icon
         </button>
+
+        <button
+          onClick={() => {
+            logWarnOnScreen('Warning')
+          }}
+        >
+          log warn
+        </button>
+
         <button
           onClick={() => {
             logErrorOnScreen(lorenIpsum)

@@ -128,6 +128,7 @@ export function initializeTempLogs({
           font-size: 12px;
           background: rgba(255, 255, 255, 0.1);
           font-weight: 500;
+          letter-spacing: 0.02em;
         }
       }
     }
@@ -347,7 +348,9 @@ function logOnScreen(
           ? String(message)
           : JSON.stringify(message, null, 2)
 
-      void navigator.clipboard.writeText(msgString)
+      void navigator.clipboard.writeText(msgString).then(() => {
+        alert('Log copied to clipboard')
+      })
       return
     }
 

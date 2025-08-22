@@ -346,8 +346,91 @@ type Options = {
   }
 }
 
-const yamlKeyValueRegex =
-  /^(.+?): ((null|true|false|undefined|\|-|\||>|>-|\[|'|"|[0-9]|\{).*)$/
+function splitYamlKeyValue(
+  line: string,
+): { key: string; value: string } | null {
+  if (line.startsWith('- ')) return null
+
+  let inSingle = false
+  let inDouble = false
+  let bracketDepth = 0
+  let braceDepth = 0
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i]!
+
+    if (inSingle) {
+      if (ch === "'" && line[i + 1] === "'") {
+        i++
+        continue
+      }
+
+      if (ch === "'") {
+        inSingle = false
+        continue
+      }
+
+      continue
+    }
+
+    if (inDouble) {
+      if (ch === '"' && line[i - 1] !== '\\') {
+        inDouble = false
+        continue
+      }
+
+      continue
+    }
+
+    if (ch === "'") {
+      inSingle = true
+      continue
+    }
+
+    if (ch === '"') {
+      inDouble = true
+      continue
+    }
+
+    if (ch === '[') {
+      bracketDepth++
+      continue
+    }
+
+    if (ch === ']') {
+      bracketDepth = Math.max(0, bracketDepth - 1)
+      continue
+    }
+
+    if (ch === '{') {
+      braceDepth++
+      continue
+    }
+
+    if (ch === '}') {
+      braceDepth = Math.max(0, braceDepth - 1)
+      continue
+    }
+
+    if (ch === ':' && bracketDepth === 0 && braceDepth === 0) {
+      const next = line[i + 1]
+
+      if (next === ' ' || next === '\t' || next === undefined) {
+        const key = line.slice(0, i).trimEnd()
+        const value = line.slice(i + 1).trimStart()
+
+        if (key.length > 0) return { key, value }
+      }
+    }
+  }
+
+  return null
+}
+
+function isBlockScalarHeader(value: string): boolean {
+  const cleaned = value.replace(/\s+#.*$/, '').trim()
+  return /^([|>])([+-])?(\d+)?$/.test(cleaned)
+}
 
 const autoCloseTimeoutsIds = new WeakMap<HTMLDivElement, number>()
 
@@ -410,7 +493,7 @@ export function watchValue(
       } else {
         newValue = yamlStringify(value, {
           maxLineLength: objFormat?.yamlMaxLineLength,
-          showUndefined: true,
+          showUndefined: !objFormat?.yamlHideUndefined,
         })
         isYaml = true
       }
@@ -481,34 +564,49 @@ export function watchValue(
 
         let afterIndent = valueLineTrimmed
 
-        const match = yamlKeyValueRegex.exec(valueLineTrimmed)
+        const kv = splitYamlKeyValue(valueLineTrimmed)
 
         if (isMultilineText) {
           afterIndent = `<span class="value string">${getYamlValueHtml(valueLineTrimmed)}</span>`
         } else {
-          if (match) {
-            const key = match[1]!
-            const itemValue = match[2]!
+          if (kv) {
+            const key = kv.key
+            const itemValue = kv.value
 
-            afterIndent = `<span class="key">${key}</span>: <span class="value ${getYamlValueClass(
+            afterIndent = `<span class="key">${htmlToText(key)}</span>: <span class="value ${getYamlValueClass(
               itemValue,
             )}">${getYamlValueHtml(itemValue)}</span>`
           } else if (afterIndent.endsWith(':')) {
-            afterIndent = `<span class="key">${afterIndent.slice(0, -1)}</span>:`
+            afterIndent = `<span class="key">${htmlToText(afterIndent.slice(0, -1))}</span>:`
           } else if (afterIndent.startsWith('- ')) {
             const arrVal = valueLineTrimmed.slice(2)
 
-            afterIndent = `<span class="key array">- </span><span class="value ${getYamlValueClass(
-              arrVal,
-            )}">${getYamlValueHtml(arrVal)}</span>`
+            const kvInArr = splitYamlKeyValue(arrVal)
+
+            if (kvInArr) {
+              afterIndent = `<span class="key array">- </span><span class="key">${htmlToText(kvInArr.key)}</span>: <span class="value ${getYamlValueClass(
+                kvInArr.value,
+              )}">${getYamlValueHtml(kvInArr.value)}</span>`
+            } else if (arrVal.endsWith(':')) {
+              afterIndent = `<span class="key array">- </span><span class="key">${htmlToText(arrVal.slice(0, -1))}</span>:`
+            } else {
+              afterIndent = `<span class="key array">- </span><span class="value ${getYamlValueClass(
+                arrVal,
+              )}">${getYamlValueHtml(arrVal)}</span>`
+            }
           } else {
             afterIndent = `<span class="value">${getYamlValueHtml(valueLineTrimmed)}</span>`
           }
         }
 
-        yamlValue += `${'<span class="indent">  </span>'.repeat(startIndent / 2)}${afterIndent}\n`
-
-        if (valueLine.endsWith(': |') || valueLine.endsWith(': |-')) {
+        {
+          const indentPairs = Math.floor(startIndent / 2)
+          const odd = startIndent % 2 === 1
+          const indentHtml = `${'<span class="indent">  </span>'.repeat(indentPairs)}${odd ? '<span class="indent"> </span>' : ''}`
+          yamlValue += `${indentHtml}${afterIndent}\n`
+        }
+        const blockKV = kv ?? splitYamlKeyValue(valueLineTrimmed)
+        if (blockKV && isBlockScalarHeader(blockKV.value)) {
           isMultilineText = true
           multilineTextIndent = startIndent + 2
         }
@@ -719,7 +817,8 @@ function htmlToText(htmlString: string) {
   return text.textContent || ''
 }
 
-const isNumberRegex = /^-?\d+(\.\d+)?$/
+const isNumberRegex =
+  /^-?(?:0|[1-9][0-9_]*)(?:\.[0-9_]+)?(?:[eE][+-]?[0-9_]+)?$|^0x[0-9a-fA-F_]+$|^0o[0-7_]+$|^0b[01_]+$|^[+-]?(?:inf|Inf|INF)$|^(?:nan|NaN|NAN)$/
 
 function getYamlValueClass(value: string): string {
   if (value.startsWith('"') && value.endsWith('"')) {
@@ -730,11 +829,13 @@ function getYamlValueClass(value: string): string {
     return 'string'
   }
 
-  if (value === 'true') {
+  const lower = value.toLowerCase()
+
+  if (lower === 'true' || lower === 'yes' || lower === 'on') {
     return 'true'
   }
 
-  if (value === 'false') {
+  if (lower === 'false' || lower === 'no' || lower === 'off') {
     return 'false'
   }
 
@@ -743,10 +844,11 @@ function getYamlValueClass(value: string): string {
   }
 
   if (
-    value === '[]' ||
-    value === '{}' ||
-    value === 'null' ||
-    value === 'undefined'
+    lower === '[]' ||
+    lower === '{}' ||
+    lower === 'null' ||
+    lower === '~' ||
+    lower === 'undefined'
   ) {
     return 'empty-value'
   }
@@ -757,24 +859,20 @@ function getYamlValueClass(value: string): string {
 function getYamlValueHtml(value: string): string {
   let newValue = value
 
-  if (newValue.startsWith('[') && newValue.endsWith(']') && newValue !== '[]') {
-    let valueContent = ''
-
-    for (const item of newValue
-      .slice(1, -1)
-      .split(/, (?=[0-9'"]|true|false|null|undefined)/)) {
-      if (valueContent.length > 0) {
-        valueContent += '</span><span class="syntax">, </span>'
-      }
-
-      valueContent += `<span class="array-item ${getYamlValueClass(item)}">${
-        item.includes(' ') ? htmlToText(item) : getYamlValueHtml(item)
-      }</span>`
+  if (newValue.startsWith('[') && newValue.endsWith(']')) {
+    if (newValue === '[]') {
+      return '<span class="syntax">[</span><span class="syntax">]</span>'
     }
 
-    newValue = `<span class="syntax">[</span>${valueContent}<span class="syntax">]</span>`
+    const items = tokenizeInlineArray(newValue.slice(1, -1))
+    const valueContent = items
+      .map(
+        (item) =>
+          `<span class="array-item ${getYamlValueClass(item)}">${getYamlValueHtml(item)}</span>`,
+      )
+      .join('<span class="syntax">, </span>')
 
-    return newValue
+    return `<span class="syntax">[</span>${valueContent}<span class="syntax">]</span>`
   }
 
   if (
@@ -787,4 +885,88 @@ function getYamlValueHtml(value: string): string {
   }
 
   return htmlToText(newValue)
+}
+
+function tokenizeInlineArray(inner: string): string[] {
+  const result: string[] = []
+  let current = ''
+  let inSingle = false
+  let inDouble = false
+  let bracketDepth = 0
+  let braceDepth = 0
+
+  for (let i = 0; i < inner.length; i++) {
+    const ch = inner[i]!
+
+    if (inSingle) {
+      if (ch === "'" && inner[i + 1] === "'") {
+        current += "''"
+        i++
+        continue
+      }
+      if (ch === "'") {
+        inSingle = false
+        current += ch
+        continue
+      }
+      current += ch
+      continue
+    }
+
+    if (inDouble) {
+      current += ch
+      if (ch === '"' && inner[i - 1] !== '\\') {
+        inDouble = false
+      }
+      continue
+    }
+
+    if (ch === "'") {
+      inSingle = true
+      current += ch
+      continue
+    }
+
+    if (ch === '"') {
+      inDouble = true
+      current += ch
+      continue
+    }
+
+    if (ch === '[') {
+      bracketDepth++
+      current += ch
+      continue
+    }
+
+    if (ch === ']') {
+      bracketDepth = Math.max(0, bracketDepth - 1)
+      current += ch
+      continue
+    }
+
+    if (ch === '{') {
+      braceDepth++
+      current += ch
+      continue
+    }
+
+    if (ch === '}') {
+      braceDepth = Math.max(0, braceDepth - 1)
+      current += ch
+      continue
+    }
+
+    if (ch === ',' && bracketDepth === 0 && braceDepth === 0) {
+      result.push(current.trim())
+      current = ''
+      continue
+    }
+
+    current += ch
+  }
+
+  if (current.trim().length) result.push(current.trim())
+
+  return result
 }
