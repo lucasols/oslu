@@ -9,4 +9,5 @@ export {
   logErrorOnScreen,
   logErrorWithoutLogOnScreen,
   logInfoOnScreen,
+  logWarnOnScreen,
 } from './tempLogger'
