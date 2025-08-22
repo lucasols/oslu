@@ -20,7 +20,6 @@ export type StackProps = {
   gap?: string | number
 }
 
-
 export const stack = ({
   justify = 'top',
   align = 'stretch',
