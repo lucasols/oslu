@@ -128,7 +128,6 @@ export function initializeTempLogs({
           font-size: 12px;
           background: rgba(255, 255, 255, 0.1);
           font-weight: 500;
-          letter-spacing: 0.02em;
         }
       }
     }
