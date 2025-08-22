@@ -128,6 +128,20 @@ function App() {
 
         <button
           onClick={() => {
+            console.error(
+              'Subst error: str=%s int=%d float=%f json=%o percent=%%',
+              'abc',
+              42.9,
+              3.14159,
+              { a: 1, b: [2, 3] },
+            )
+          }}
+        >
+          console.error with substitutions
+        </button>
+
+        <button
+          onClick={() => {
             throw new Error('Ignore')
           }}
         >

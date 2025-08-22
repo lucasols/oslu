@@ -160,8 +160,82 @@ function addErrorsListeners() {
     })
   }
 
+  function formatConsoleArgs(args: any[]): any[] {
+    if (args.length === 0) return args
+    const [first, ...rest] = args
+    if (typeof first !== 'string') return args
+
+    let result = ''
+    let i = 0
+    let argIndex = 0
+
+    while (i < first.length) {
+      const ch = first[i] as string
+      if (ch === '%' && i + 1 < first.length) {
+        const spec = first[i + 1] as string
+        if (spec === '%') {
+          result += '%'
+          i += 2
+          continue
+        }
+
+        const take = () => rest[argIndex++]
+
+        if (spec === 's') {
+          const v = take()
+          result += String(v)
+          i += 2
+          continue
+        }
+
+        if (spec === 'd' || spec === 'i') {
+          const v = Number(take())
+          const n = spec === 'i' ? Math.trunc(v) : v
+          result += String(n)
+          i += 2
+          continue
+        }
+
+        if (spec === 'f') {
+          const v = Number(take())
+          result += String(v)
+          i += 2
+          continue
+        }
+
+        if (spec === 'o' || spec === 'O') {
+          const v = take()
+          try {
+            result += JSON.stringify(v, null, spec === 'O' ? 2 : 0)
+          } catch {
+            result += String(v)
+          }
+          i += 2
+          continue
+        }
+
+        if (spec === 'c') {
+          void take()
+          i += 2
+          continue
+        }
+
+        result += `%${spec}`
+        i += 2
+        continue
+      }
+
+      result += ch
+      i += 1
+    }
+
+    const remaining = rest.slice(argIndex)
+    return [result, ...remaining]
+  }
+
   console.error = (...args: any[]) => {
-    logOnScreen('error', args, {
+    const substituted = formatConsoleArgs(args)
+    logOnScreen('error', substituted, {
       timeout: 15_000,
       disableConsoleLog: true,
       _error: new Error('console.error', {
