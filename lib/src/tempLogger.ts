@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
-import { yamlStringify } from '@lucasols/utils/yamlStringify'
 import { css } from 'goober'
 import { globalStyle } from './globalStyle'
 import { centerContent } from './utils/centerContent'
 import { createElement } from './utils/createElement'
 import { inline } from './utils/inline'
+import { jsonFormatter } from './utils/jsonFormatter'
 import { stack } from './utils/stack'
 import { transition } from './utils/transition'
 
@@ -357,11 +357,9 @@ function logOnScreen(
 
         if (typeof item === 'string' || typeof item === 'number') {
           itemContent = String(item)
+        } else {
+          itemContent = jsonFormatter(item)
         }
-        itemContent = yamlStringify(item, {
-          maxLineLength: 100,
-          maxDepth: 5,
-        })
 
         return `<div class="item">${itemContent}</div>`
       })
